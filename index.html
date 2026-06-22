@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avocado Fresh Mexican Grill — Sistema de Gestión</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #0d0d0d; color: #f5f5f5; font-family: system-ui, -apple-system, sans-serif; min-height: 100vh; }
+.hidden { display: none !important; }
+
+/* LOGIN */
+.login-wrap { display: flex; min-height: 100vh; }
+.login-left { width: 260px; background: #0d0d0d; border-right: 0.5px solid #222; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+.login-right { flex: 1; background: #141414; display: flex; flex-direction: column; justify-content: center; padding: 2.5rem 2.5rem; max-width: 480px; }
+.logo-circle { width: 72px; height: 72px; background: #0a1800; border: 1.5px solid #639922; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin-bottom: 1rem; }
+.brand-name { color: #9FE1CB; font-size: 14px; font-weight: 500; text-align: center; line-height: 1.6; }
+.sys-lbl { color: #444; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; border-top: 0.5px solid #222; padding-top: 1rem; width: 100%; margin-top: 1.5rem; line-height: 1.8; }
+.title { font-size: 22px; font-weight: 500; color: #f5f5f5; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: #555; margin-bottom: 1.5rem; }
+.lbl { font-size: 11px; color: #666; margin-bottom: 4px; display: block; text-transform: uppercase; letter-spacing: 0.05em; }
+.inp { width: 100%; padding: 11px 13px; background: #0d0d0d; border: 0.5px solid #333; border-radius: 8px; color: #f5f5f5; font-size: 13px; margin-bottom: 1rem; outline: none; transition: border-color 0.15s; }
+.inp:focus { border-color: #639922; }
+.inp::placeholder { color: #444; }
+.role-row { display: flex; gap: 8px; margin-bottom: 1.25rem; }
+.role { flex: 1; padding: 11px 8px; border-radius: 8px; border: 0.5px solid #333; cursor: pointer; text-align: center; font-size: 12px; color: #666; background: #0d0d0d; transition: all 0.15s; }
+.role.active { border: 1.5px solid #639922; background: #0a1800; color: #9FE1CB; }
+.btn { width: 100%; padding: 12px; background: #3B6D11; color: #EAF3DE; border: none; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+.btn:hover { background: #27500A; }
+.btn:disabled { background: #222; color: #555; cursor: not-allowed; }
+.err-msg { color: #e88; font-size: 12px; margin-bottom: 10px; padding: 8px 12px; background: #1a0a0a; border-radius: 8px; border: 0.5px solid #A32D2D; }
+
+/* APP */
+.app-wrap { display: flex; min-height: 100vh; }
+.sidebar { width: 210px; background: #0d0d0d; border-right: 0.5px solid #222; padding: 1rem; flex-shrink: 0; display: flex; flex-direction: column; }
+.sidebar-brand { font-size: 13px; font-weight: 500; color: #9FE1CB; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid #222; }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-size: 12px; color: #666; margin-bottom: 3px; transition: all 0.15s; }
+.nav-item:hover { background: #1a1a1a; color: #ccc; }
+.nav-item.active { background: #0a1800; color: #9FE1CB; border: 0.5px solid #639922; }
+.content { flex: 1; padding: 1.5rem; overflow-y: auto; background: #111; }
+.page { display: none; }
+.page.active { display: block; }
+.page-title { font-size: 18px; font-weight: 500; color: #f5f5f5; margin-bottom: 4px; }
+.page-sub { font-size: 12px; color: #555; margin-bottom: 1.5rem; }
+.stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1.5rem; }
+.stat { background: #141414; border: 0.5px solid #222; border-radius: 10px; padding: 12px 16px; }
+.stat-val { font-size: 22px; font-weight: 600; }
+.stat-lbl { font-size: 10px; color: #555; text-transform: uppercase; margin-top: 3px; }
+.panel { background: #141414; border: 0.5px solid #222; border-radius: 10px; padding: 1rem; margin-bottom: 12px; }
+.panel-title { font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th { font-size: 10px; color: #555; text-transform: uppercase; padding: 8px 12px; text-align: left; border-bottom: 0.5px solid #222; }
+.tbl td { font-size: 12px; color: #ccc; padding: 9px 12px; border-bottom: 0.5px solid #1a1a1a; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr:hover td { background: #1a1a1a; }
+.badge { display: inline-block; font-size: 10px; padding: 2px 9px; border-radius: 20px; }
+.b-ok { background: #0a1800; color: #639922; }
+.b-low { background: #1a1200; color: #B8860B; }
+.b-crit { background: #1a0a0a; color: #A32D2D; }
+.b-blue { background: #08121e; color: #7db8e8; }
+.add-btn { padding: 6px 14px; background: #3B6D11; color: #EAF3DE; border: none; border-radius: 8px; font-size: 11px; cursor: pointer; }
+.add-btn:hover { background: #27500A; }
+.small-inp { padding: 7px 10px; background: #0d0d0d; border: 0.5px solid #333; border-radius: 6px; color: #f5f5f5; font-size: 12px; outline: none; }
+.small-inp:focus { border-color: #639922; }
+.loading { text-align: center; padding: 2rem; color: #444; font-size: 13px; }
+.user-info { font-size: 11px; color: #555; padding: 10px; border: 0.5px solid #222; border-radius: 8px; margin-top: auto; margin-bottom: 8px; }
+.logout-btn { width: 100%; padding: 8px; background: #1a0a0a; color: #A32D2D; border: 0.5px solid #A32D2D; border-radius: 8px; font-size: 11px; cursor: pointer; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.form-full { grid-column: 1/-1; }
+.modal-overlay { position: fixed; top:0;left:0;right:0;bottom:0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center; z-index: 100; }
+.modal { background: #141414; border: 0.5px solid #333; border-radius: 12px; padding: 1.5rem; width: 400px; max-width: 95vw; }
+.modal-title { font-size: 15px; font-weight: 500; color: #f5f5f5; margin-bottom: 1.25rem; }
+.modal-actions { display: flex; gap: 8px; margin-top: 1rem; justify-content: flex-end; }
+.cancel-btn { padding: 7px 16px; background: #1a1a1a; color: #888; border: 0.5px solid #333; border-radius: 8px; font-size: 12px; cursor: pointer; }
+.conn-ok { color: #639922; font-size: 13px; padding: 10px 0; }
+.conn-err { color: #A32D2D; font-size: 13px; padding: 10px 0; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-left">
+      <div class="logo-circle">🥑</div>
+      <div class="brand-name">Avocado Fresh<br>Mexican Grill</div>
+      <div class="sys-lbl">Sistema de Gestión<br>Empresarial</div>
+    </div>
+    <div class="login-right">
+      <p class="title">Bienvenido</p>
+      <p class="subtitle">Ingresa tus credenciales para continuar</p>
+      <div id="login-err" class="err-msg hidden"></div>
+      <span class="lbl">Tipo de acceso</span>
+      <div class="role-row">
+        <div class="role active" id="r-admin" onclick="pickRole('admin')">👑 Administrador</div>
+        <div class="role" id="r-emp" onclick="pickRole('empleado')">👤 Empleado</div>
+      </div>
+      <span class="lbl">Correo electrónico</span>
+      <input class="inp" type="email" id="login-email" placeholder="correo@avocadofresh.com" />
+      <span class="lbl">Contraseña</span>
+      <input class="inp" type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      <button class="btn" id="login-btn" onclick="doLogin()">Entrar al sistema</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen" class="hidden">
+  <div class="app-wrap">
+    <div class="sidebar">
+      <div class="sidebar-brand">🥑 Avocado Fresh</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)">📊 Dashboard</div>
+      <div class="nav-item" onclick="showPage('inventario',this)">📦 Inventario</div>
+      <div class="nav-item" onclick="showPage('ventas',this)">💰 Ventas</div>
+      <div class="nav-item" onclick="showPage('empleados',this)">👥 Empleados</div>
+      <div class="nav-item" onclick="showPage('proveedores',this)">🧾 Proveedores</div>
+      <div class="nav-item admin-only" onclick="showPage('usuarios',this)">🔐 Usuarios</div>
+      <div class="user-info" id="user-info-box"></div>
+      <button class="logout-btn" onclick="doLogout()">⬅ Cerrar sesión</button>
+    </div>
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <p class="page-title">📊 Dashboard</p>
+        <p class="page-sub">Resumen del restaurante en tiempo real</p>
+        <div class="stats">
+          <div class="stat"><div class="stat-val" style="color:#639922;" id="d-usuarios">—</div><div class="stat-lbl">Usuarios</div></div>
+          <div class="stat"><div class="stat-val" style="color:#C0C0C0;" id="d-inventario">—</div><div class="stat-lbl">Ingredientes</div></div>
+          <div class="stat"><div class="stat-val" style="color:#A32D2D;" id="d-criticos">—</div><div class="stat-lbl">Críticos</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Estado de Conexión</div>
+          <div id="conn-status" class="loading">Verificando conexión con Supabase...</div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Ingredientes Críticos</div>
+          <table class="tbl"><thead><tr><th>Ingrediente</th><th>Stock Actual</th><th>Mínimo</th><th>Estado</th></tr></thead>
+          <tbody id="dash-inv"></tbody></table>
+        </div>
+      </div>
+
+      <!-- INVENTARIO -->
+      <div class="page" id="page-inventario">
+        <p class="page-title">📦 Inventario</p>
+        <p class="page-sub">Control de ingredientes en tiempo real</p>
+        <div class="panel">
+          <div class="panel-title">
+            <span>Ingredientes</span>
+            <button class="add-btn" onclick="openModal('inv')">+ Agregar</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Nombre</th><th>Categoría</th><th>Stock</th><th>Mínimo</th><th>Unidad</th><th>Estado</th></tr></thead>
+          <tbody id="inv-tbody"><tr><td colspan="6" class="loading">Cargando...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- VENTAS -->
+      <div class="page" id="page-ventas">
+        <p class="page-title">💰 Ventas</p>
+        <p class="page-sub">Registra las ventas diarias del restaurante</p>
+        <div class="panel">
+          <div class="panel-title">Registrar Venta del Día</div>
+          <div class="form-grid">
+            <div><span class="lbl">Ingresos totales ($)</span><input class="small-inp" type="number" id="v-ingresos" placeholder="0.00" style="width:100%;margin-top:4px;" /></div>
+            <div><span class="lbl">Gastos totales ($)</span><input class="small-inp" type="number" id="v-gastos" placeholder="0.00" style="width:100%;margin-top:4px;" /></div>
+          </div>
+          <button class="add-btn" onclick="registrarVenta()">💾 Guardar venta de hoy</button>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Historial de Ventas</div>
+          <table class="tbl"><thead><tr><th>Fecha</th><th>Ingresos</th><th>Gastos</th><th>Ganancia</th><th>Margen</th></tr></thead>
+          <tbody id="ventas-tbody"><tr><td colspan="5" class="loading">Cargando...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- EMPLEADOS -->
+      <div class="page" id="page-empleados">
+        <p class="page-title">👥 Empleados</p>
+        <p class="page-sub">Control de equipo y nómina</p>
+        <div class="panel">
+          <div class="panel-title">
+            <span>Equipo</span>
+            <button class="add-btn admin-only" onclick="openModal('emp')">+ Agregar</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Nombre</th><th>Puesto</th><th>Salario</th><th>Horario</th></tr></thead>
+          <tbody id="emp-tbody"><tr><td colspan="4" class="loading">Cargando...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- PROVEEDORES -->
+      <div class="page" id="page-proveedores">
+        <p class="page-title">🧾 Proveedores</p>
+        <p class="page-sub">Gestión de proveedores y contactos</p>
+        <div class="panel">
+          <div class="panel-title">
+            <span>Proveedores</span>
+            <button class="add-btn admin-only" onclick="openModal('prov')">+ Agregar</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Nombre</th><th>Categoría</th><th>Contacto</th><th>Teléfono</th></tr></thead>
+          <tbody id="prov-tbody"><tr><td colspan="4" class="loading">Cargando...</td></tr></tbody></table>
+        </div>
+      </div>
+
+      <!-- USUARIOS -->
+      <div class="page" id="page-usuarios">
+        <p class="page-title">🔐 Usuarios del Sistema</p>
+        <p class="page-sub">Administra accesos y roles — Solo administradores</p>
+        <div class="panel">
+          <div class="panel-title">
+            <span>Usuarios Registrados</span>
+            <button class="add-btn" onclick="openModal('usr')">+ Agregar Usuario</button>
+          </div>
+          <table class="tbl"><thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Estado</th></tr></thead>
+          <tbody id="usr-tbody"><tr><td colspan="4" class="loading">Cargando...</td></tr></tbody></table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">Agregar</div>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="cancel-btn" onclick="closeModal()">Cancelar</button>
+      <button class="add-btn" onclick="saveModal()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://crfmkmxduaxxhpscspdn.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNyZm1rbXhkdWF4eGhwc2NzcGRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwNjUxMjgsImV4cCI6MjA5NzY0MTEyOH0.A0xlkETgvX6VYbRptvSUosPIQzPT5_yfw1hsI3P_J1s';
+let currentUser = null;
+let currentRole = 'admin';
+let modalType = '';
+
+async function sb(table, method='GET', body=null, query=''){
+  const res = await fetch(`${SUPA_URL}/rest/v1/${table}${query}`, {
+    method,
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': `Bearer ${SUPA_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method==='POST'?'return=representation':''
+    },
+    body: body ? JSON.stringify(body) : null
+  });
+  if(!res.ok) throw new Error(await res.text());
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+function pickRole(r){
+  currentRole=r;
+  document.getElementById('r-admin').classList.toggle('active',r==='admin');
+  document.getElementById('r-emp').classList.toggle('active',r==='empleado');
+}
+
+async function doLogin(){
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value.trim();
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-err');
+  err.classList.add('hidden');
+  if(!email||!pass){ err.textContent='Ingresa correo y contraseña'; err.classList.remove('hidden'); return; }
+  btn.disabled=true; btn.textContent='Verificando...';
+  try {
+    const users = await sb('usuarios','GET',null,`?correo=eq.${encodeURIComponent(email)}&rol=eq.${currentRole}&activo=eq.true&select=*`);
+    if(!users||users.length===0){
+      err.textContent='Usuario no encontrado o rol incorrecto. Verifica tus datos.';
+      err.classList.remove('hidden');
+      btn.disabled=false; btn.textContent='Entrar al sistema';
+      return;
+    }
+    currentUser = users[0];
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.remove('hidden');
+    document.getElementById('user-info-box').innerHTML = `<strong style="color:#9FE1CB;">${currentUser.nombre}</strong><br><span style="color:#555;">${currentUser.rol==='admin'?'👑 Administrador':'👤 Empleado'}</span>`;
+    if(currentUser.rol!=='admin'){
+      document.querySelectorAll('.admin-only').forEach(el=>el.classList.add('hidden'));
+    }
+    loadDashboard();
+  } catch(e){
+    err.textContent='Error de conexión: '+e.message;
+    err.classList.remove('hidden');
+    btn.disabled=false; btn.textContent='Entrar al sistema';
+  }
+}
+
+function doLogout(){
+  currentUser=null;
+  document.getElementById('app-screen').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-err').classList.add('hidden');
+}
+
+function showPage(name, el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  const loaders = {inventario:loadInventario, ventas:loadVentas, empleados:loadEmpleados, proveedores:loadProveedores, usuarios:loadUsuarios};
+  if(loaders[name]) loaders[name]();
+}
+
+async function loadDashboard(){
+  try {
+    const [usuarios, inventario] = await Promise.all([
+      sb('usuarios','GET',null,'?select=id&activo=eq.true'),
+      sb('inventario','GET',null,'?select=*'),
+    ]);
+    document.getElementById('d-usuarios').textContent = usuarios.length;
+    document.getElementById('d-inventario').textContent = inventario.length;
+    const criticos = inventario.filter(i=>parseFloat(i.stock_actual)<=parseFloat(i.stock_minimo));
+    document.getElementById('d-criticos').textContent = criticos.length;
+    document.getElementById('conn-status').className = 'conn-ok';
+    document.getElementById('conn-status').textContent = '✅ Conectado a Supabase — Base de datos real activa';
+    document.getElementById('dash-inv').innerHTML = criticos.length ? criticos.slice(0,5).map(i=>`
+      <tr><td style="color:#f5f5f5;">${i.nombre}</td><td>${i.stock_actual} ${i.unidad}</td><td>${i.stock_minimo} ${i.unidad}</td>
+      <td><span class="badge b-crit">Crítico</span></td></tr>`).join('') :
+      '<tr><td colspan="4" style="color:#639922;text-align:center;padding:1rem;">✅ Sin ingredientes críticos</td></tr>';
+  } catch(e){
+    document.getElementById('conn-status').className='conn-err';
+    document.getElementById('conn-status').textContent='❌ Error de conexión: '+e.message;
+  }
+}
+
+async function loadInventario(){
+  document.getElementById('inv-tbody').innerHTML='<tr><td colspan="6" class="loading">Cargando...</td></tr>';
+  try {
+    const data = await sb('inventario','GET',null,'?select=*&order=nombre');
+    document.getElementById('inv-tbody').innerHTML = data.length ? data.map(i=>{
+      const st = parseFloat(i.stock_actual)<=parseFloat(i.stock_minimo)?'b-crit':parseFloat(i.stock_actual)<=(parseFloat(i.stock_minimo)*1.5)?'b-low':'b-ok';
+      const sl = parseFloat(i.stock_actual)<=parseFloat(i.stock_minimo)?'Crítico':parseFloat(i.stock_actual)<=(parseFloat(i.stock_minimo)*1.5)?'Bajo':'Normal';
+      return `<tr><td style="color:#f5f5f5;font-weight:500;">${i.nombre}</td><td style="color:#666;">${i.categoria}</td><td>${i.stock_actual}</td><td>${i.stock_minimo}</td><td>${i.unidad}</td><td><span class="badge ${st}">${sl}</span></td></tr>`;
+    }).join('') : '<tr><td colspan="6" style="color:#555;text-align:center;padding:1rem;">Sin ingredientes registrados</td></tr>';
+  } catch(e){ document.getElementById('inv-tbody').innerHTML=`<tr><td colspan="6" style="color:#A32D2D;">Error: ${e.message}</td></tr>`; }
+}
+
+async function loadVentas(){
+  document.getElementById('ventas-tbody').innerHTML='<tr><td colspan="5" class="loading">Cargando...</td></tr>';
+  try {
+    const data = await sb('ventas','GET',null,'?select=*&order=fecha.desc&limit=15');
+    document.getElementById('ventas-tbody').innerHTML = data.length ? data.map(v=>{
+      const margin = v.total_ingresos>0?Math.round(((v.total_ingresos-v.total_gastos)/v.total_ingresos)*100):0;
+      return `<tr><td style="color:#C0C0C0;">${v.fecha}</td><td style="color:#639922;">$${Number(v.total_ingresos).toLocaleString()}</td><td style="color:#A32D2D;">$${Number(v.total_gastos).toLocaleString()}</td><td style="color:#9FE1CB;">$${Number(v.ganancia_neta).toLocaleString()}</td><td style="color:#B8860B;">${margin}%</td></tr>`;
+    }).join('') : '<tr><td colspan="5" style="color:#555;text-align:center;padding:1rem;">Sin ventas registradas aún — ¡Registra tu primera venta!</td></tr>';
+  } catch(e){ document.getElementById('ventas-tbody').innerHTML=`<tr><td colspan="5" style="color:#A32D2D;">Error: ${e.message}</td></tr>`; }
+}
+
+async function registrarVenta(){
+  const ing = parseFloat(document.getElementById('v-ingresos').value)||0;
+  const gas = parseFloat(document.getElementById('v-gastos').value)||0;
+  if(!ing){ alert('Ingresa los ingresos del día'); return; }
+  try {
+    await sb('ventas','POST',{ total_ingresos:ing, total_gastos:gas, ganancia_neta:ing-gas });
+    document.getElementById('v-ingresos').value='';
+    document.getElementById('v-gastos').value='';
+    loadVentas();
+    alert('✅ Venta registrada correctamente');
+  } catch(e){ alert('Error: '+e.message); }
+}
+
+async function loadEmpleados(){
+  document.getElementById('emp-tbody').innerHTML='<tr><td colspan="4" class="loading">Cargando...</td></tr>';
+  try {
+    const data = await sb('empleados','GET',null,'?select=*&activo=eq.true&order=nombre');
+    document.getElementById('emp-tbody').innerHTML = data.length ? data.map(e=>`
+      <tr><td style="color:#f5f5f5;font-weight:500;">${e.nombre}</td><td style="color:#666;">${e.rol}</td><td style="color:#639922;">$${Number(e.salario).toLocaleString()}</td><td style="color:#555;">${e.horario||'—'}</td></tr>`
+    ).join('') : '<tr><td colspan="4" style="color:#555;text-align:center;padding:1rem;">Sin empleados registrados</td></tr>';
+  } catch(e){ document.getElementById('emp-tbody').innerHTML=`<tr><td colspan="4" style="color:#A32D2D;">Error: ${e.message}</td></tr>`; }
+}
+
+async function loadProveedores(){
+  document.getElementById('prov-tbody').innerHTML='<tr><td colspan="4" class="loading">Cargando...</td></tr>';
+  try {
+    const data = await sb('proveedores','GET',null,'?select=*&activo=eq.true&order=nombre');
+    document.getElementById('prov-tbody').innerHTML = data.length ? data.map(p=>`
+      <tr><td style="color:#f5f5f5;font-weight:500;">${p.nombre}</td><td style="color:#666;">${p.categoria}</td><td style="color:#ccc;">${p.contacto||'—'}</td><td style="color:#555;">${p.telefono||'—'}</td></tr>`
+    ).join('') : '<tr><td colspan="4" style="color:#555;text-align:center;padding:1rem;">Sin proveedores registrados</td></tr>';
+  } catch(e){ document.getElementById('prov-tbody').innerHTML=`<tr><td colspan="4" style="color:#A32D2D;">Error: ${e.message}</td></tr>`; }
+}
+
+async function loadUsuarios(){
+  document.getElementById('usr-tbody').innerHTML='<tr><td colspan="4" class="loading">Cargando...</td></tr>';
+  try {
+    const data = await sb('usuarios','GET',null,'?select=*&order=nombre');
+    document.getElementById('usr-tbody').innerHTML = data.map(u=>`
+      <tr><td style="color:#f5f5f5;font-weight:500;">${u.nombre}</td><td style="color:#666;">${u.correo}</td>
+      <td><span class="badge ${u.rol==='admin'?'b-ok':'b-blue'}">${u.rol==='admin'?'👑 Admin':'👤 Empleado'}</span></td>
+      <td><span class="badge ${u.activo?'b-ok':'b-crit'}">${u.activo?'Activo':'Inactivo'}</span></td></tr>`
+    ).join('');
+  } catch(e){ document.getElementById('usr-tbody').innerHTML=`<tr><td colspan="4" style="color:#A32D2D;">Error: ${e.message}</td></tr>`; }
+}
+
+const modalForms = {
+  inv: { title:'➕ Agregar Ingrediente', html:`
+    <div class="form-grid">
+      <div class="form-full"><span class="lbl">Nombre del ingrediente</span><input class="small-inp" id="f-nombre" placeholder="Ej: Chile Serrano" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Categoría</span><input class="small-inp" id="f-cat" placeholder="Verduras" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Unidad</span><input class="small-inp" id="f-unidad" placeholder="kg / lt / pzs" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Stock Actual</span><input class="small-inp" type="number" id="f-stock" placeholder="0" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Stock Mínimo</span><input class="small-inp" type="number" id="f-min" placeholder="0" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Stock Máximo</span><input class="small-inp" type="number" id="f-max" placeholder="0" style="width:100%;margin-top:4px;" /></div>
+    </div>` },
+  emp: { title:'➕ Agregar Empleado', html:`
+    <div class="form-grid">
+      <div class="form-full"><span class="lbl">Nombre completo</span><input class="small-inp" id="f-nombre" placeholder="Nombre Apellido" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Puesto</span><input class="small-inp" id="f-rol" placeholder="Cocinero, Mesero..." style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Salario mensual ($)</span><input class="small-inp" type="number" id="f-salario" placeholder="0" style="width:100%;margin-top:4px;" /></div>
+      <div class="form-full"><span class="lbl">Horario</span><input class="small-inp" id="f-horario" placeholder="8am - 4pm" style="width:100%;margin-top:4px;" /></div>
+    </div>` },
+  prov: { title:'➕ Agregar Proveedor', html:`
+    <div class="form-grid">
+      <div class="form-full"><span class="lbl">Nombre de empresa</span><input class="small-inp" id="f-nombre" placeholder="Nombre del proveedor" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Categoría</span><input class="small-inp" id="f-cat" placeholder="Frutas, Carnes..." style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Nombre de contacto</span><input class="small-inp" id="f-contacto" placeholder="Juan Pérez" style="width:100%;margin-top:4px;" /></div>
+      <div><span class="lbl">Teléfono</span><input class="small-inp" id="f-tel" placeholder="555-0000" style="width:100%;margin-top:4px;" /></div>
+    </div>` },
+  usr: { title:'➕ Agregar Usuario', html:`
+    <div class="form-grid">
+      <div class="form-full"><span class="lbl">Nombre completo</span><input class="small-inp" id="f-nombre" placeholder="Nombre Apellido" style="width:100%;margin-top:4px;" /></div>
+      <div class="form-full"><span class="lbl">Correo electrónico</span><input class="small-inp" type="email" id="f-correo" placeholder="correo@avocadofresh.com" style="width:100%;margin-top:4px;" /></div>
+      <div class="form-full"><span class="lbl">Rol de acceso</span>
+        <select class="small-inp" id="f-rol" style="width:100%;margin-top:4px;background:#0d0d0d;color:#f5f5f5;">
+          <option value="empleado">👤 Empleado — acceso limitado</option>
+          <option value="admin">👑 Administrador — acceso completo</option>
+        </select>
+      </div>
+    </div>
+    <p style="font-size:11px;color:#555;margin-top:4px;">El usuario podrá iniciar sesión con este correo desde cualquier dispositivo.</p>` },
+};
+
+function openModal(type){
+  modalType=type;
+  const f=modalForms[type];
+  document.getElementById('modal-title').textContent=f.title;
+  document.getElementById('modal-body').innerHTML=f.html;
+  document.getElementById('modal').classList.remove('hidden');
+}
+
+function closeModal(){ document.getElementById('modal').classList.add('hidden'); }
+
+async function saveModal(){
+  try {
+    if(modalType==='inv'){
+      const nombre=document.getElementById('f-nombre').value.trim();
+      if(!nombre){alert('Ingresa el nombre del ingrediente');return;}
+      await sb('inventario','POST',{nombre,categoria:document.getElementById('f-cat').value||'General',unidad:document.getElementById('f-unidad').value||'kg',stock_actual:parseFloat(document.getElementById('f-stock').value)||0,stock_minimo:parseFloat(document.getElementById('f-min').value)||0,stock_maximo:parseFloat(document.getElementById('f-max').value)||0});
+      closeModal(); loadInventario(); alert('✅ Ingrediente agregado exitosamente');
+    } else if(modalType==='emp'){
+      const nombre=document.getElementById('f-nombre').value.trim();
+      if(!nombre){alert('Ingresa el nombre del empleado');return;}
+      await sb('empleados','POST',{nombre,rol:document.getElementById('f-rol').value||'Empleado',salario:parseFloat(document.getElementById('f-salario').value)||0,horario:document.getElementById('f-horario').value||''});
+      closeModal(); loadEmpleados(); alert('✅ Empleado agregado exitosamente');
+    } else if(modalType==='prov'){
+      const nombre=document.getElementById('f-nombre').value.trim();
+      if(!nombre){alert('Ingresa el nombre del proveedor');return;}
+      await sb('proveedores','POST',{nombre,categoria:document.getElementById('f-cat').value||'General',contacto:document.getElementById('f-contacto').value||'',telefono:document.getElementById('f-tel').value||''});
+      closeModal(); loadProveedores(); alert('✅ Proveedor agregado exitosamente');
+    } else if(modalType==='usr'){
+      const nombre=document.getElementById('f-nombre').value.trim();
+      const correo=document.getElementById('f-correo').value.trim();
+      const rol=document.getElementById('f-rol').value;
+      if(!nombre||!correo){alert('Ingresa nombre y correo');return;}
+      await sb('usuarios','POST',{nombre,correo,rol,activo:true});
+      closeModal(); loadUsuarios(); alert(`✅ Usuario ${nombre} agregado como ${rol==='admin'?'Administrador':'Empleado'}`);
+    }
+  } catch(e){ alert('Error al guardar: '+e.message); }
+}
+</script>
+</body>
+</html>
